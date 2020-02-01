@@ -31,10 +31,10 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   //Motor Controllers
+  WPI_TalonFX topRightDrivey, topLeftDrivey, bottomRightDrivey, bottomLeftDrivey; 
 
   DifferentialDrive drivey;
   SpeedControllerGroup leftDrivey, rightDrivey;
-  WPI_TalonFX topRightDrivey, topLeftDrivey, bottomRightDrivey, bottomLeftDrivey; 
 
   Timer time;
 
@@ -97,6 +97,8 @@ public class Robot extends TimedRobot {
   //Called periodically during teleop
   @Override
   public void teleopPeriodic() {
+    
+    
     
   }
 
