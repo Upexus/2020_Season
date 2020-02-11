@@ -118,29 +118,45 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-
-    time.reset();
-    time.start();
   }
 
   //Called periodically during auto
   @Override
   public void autonomousPeriodic() {
-    aimLimelight();    
   }
 
   //Called periodically during teleop
   @Override
   public void teleopPeriodic() {
-    if (logitech.getRawButton(1) == true) {
+    boolean search = false;
+
+    if (logitech.getRawButton(5)) {
+      if (search == true) {
+        search = false;
+      } else if (search == false) {
+        search = true;
+      }
+    }
+
+    if (search == true) {
+      limelightChecker();
+    }
+
+    if (logitech.getRawButton(1)) {
+      drivey.arcadeDrive(0.5, 0);
+    } else {
+      drivey.arcadeDrive(0.5, 0);
+    }
+
+    if (logitech.getRawButton(8) == true) {
       shooter.set(0.5);
     } else {
       shooter.set(0.0);
     }
 
-    if (logitech.getRawButtonPressed(9)) {
+    if (logitech.getRawButton(9)) {
       turret.set(-0.5);
-    } else if (logitech.getRawButtonPressed(10)) {
+    } else if (logitech.getRawButton(10)) {
       turret.set(0.5);
     }
   }
@@ -150,38 +166,29 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
   }
 
-  public void aimLimelight() {
+  public void limelightChecker() {
+    double tx = table.getEntry("tx").getDouble(0.0);
+    double tv = table.getEntry("tv").getDouble(0.0);
     double kp = -0.1;
     double min_command = 0.2;
-
-    double tx = table.getEntry("tx").getDouble(0);
-    
     double heading_error = -tx;
-    double steering_adjust = 0.0;
+    double steering_adjust = 0.0;    
+    
     if (tx > 1.0) {
       steering_adjust = kp*heading_error - min_command;
-      time.reset();
       turret.set(steering_adjust);
     } else if (tx < 1.0) {
-      steering_adjust = kp*heading_error  + min_command;
+      steering_adjust = kp*heading_error + min_command;
       turret.set(-steering_adjust);
-    }    
-  }
-
-  public void seeker() {
-    double kp = -0.1;
-    double tv = table.getEntry("tv").getDouble(0);
-    double tx = table.getEntry("tx").getDouble(0);
-
-    double steering_adjust = 0.0;
+    }
 
     if (tv == 0.0) {
       steering_adjust = 0.3;
       turret.set(steering_adjust);
     } else {
-      double heading_error = tx;
+      heading_error = tx;
       steering_adjust = kp * tx;
       turret.set(steering_adjust);
-    }
+    }    
   }
 }
