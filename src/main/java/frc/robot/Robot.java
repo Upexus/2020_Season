@@ -71,13 +71,15 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-    time = new Timer();
+    time     = new Timer();
+    logitech = new Joystick(0);
 
     shooterAlpha = new WPI_TalonFX(9);
     shooterBeta  = new WPI_TalonFX(10);
+    shooter      = new SpeedControllerGroup(shooterAlpha, shooterBeta);
     shooter.setInverted(true);
-    shooter = new SpeedControllerGroup(shooterAlpha, shooterBeta);
-    turret = new CANSparkMax(11, MotorType.kBrushless);
+    
+    turret       = new CANSparkMax(11, MotorType.kBrushless);
     turretSensor = new CANEncoder(turret);
 
     topLeftDrivey    = new WPI_TalonFX(7);
@@ -90,13 +92,12 @@ public class Robot extends TimedRobot {
 
     drivey = new DifferentialDrive(leftDrivey, rightDrivey);
 
-    logitech = new Joystick(0);
 
     //NetworkTable stuffs
     table = NetworkTableInstance.getDefault().getTable("limelight");
-    tx = table.getEntry("tx");
-    ty = table.getEntry("ty");
-    ta = table.getEntry("ta");
+    tx    = table.getEntry("tx");
+    ty    = table.getEntry("ty");
+    ta    = table.getEntry("ta");
   }
   
   @Override
@@ -112,7 +113,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("LimelightArea", area);
   }
 
-  //Run when auto first begins
   @Override
   public void autonomousInit() {
     m_autoSelected = m_chooser.getSelected();
@@ -120,48 +120,41 @@ public class Robot extends TimedRobot {
     System.out.println("Auto selected: " + m_autoSelected);
   }
 
-  //Called periodically during auto
   @Override
   public void autonomousPeriodic() {
   }
 
-  //Called periodically during teleop
   @Override
   public void teleopPeriodic() {
     boolean search = false;
 
-    if (logitech.getRawButton(5)) {
-      if (search == true) {
-        search = false;
-      } else if (search == false) {
-        search = true;
-      }
+    if (logitech.getRawButtonPressed(5)) {
+      search = !search;
     }
 
-    if (search == true) {
+    if (search) {
       limelightChecker();
     }
 
     if (logitech.getRawButton(1)) {
       drivey.arcadeDrive(0.5, 0);
     } else {
-      drivey.arcadeDrive(0.5, 0);
+      drivey.arcadeDrive(0.0 , 0);
     }
 
-    if (logitech.getRawButton(8) == true) {
+    if (logitech.getRawButton(8)) {
       shooter.set(0.5);
     } else {
       shooter.set(0.0);
     }
 
-    if (logitech.getRawButton(9)) {
+    if (logitech.getRawButton(12)) {
       turret.set(-0.5);
     } else if (logitech.getRawButton(10)) {
       turret.set(0.5);
     }
   }
 
-  //Called periodically during testing
   @Override
   public void testPeriodic() {
   }
@@ -170,9 +163,9 @@ public class Robot extends TimedRobot {
     double tx = table.getEntry("tx").getDouble(0.0);
     double tv = table.getEntry("tv").getDouble(0.0);
     double kp = -0.1;
-    double min_command = 0.2;
-    double heading_error = -tx;
-    double steering_adjust = 0.0;    
+    double min_command     = 0.2;
+    double heading_error   = -tx;
+    double steering_adjust = 0.0;
     
     if (tx > 1.0) {
       steering_adjust = kp*heading_error - min_command;
@@ -189,6 +182,6 @@ public class Robot extends TimedRobot {
       heading_error = tx;
       steering_adjust = kp * tx;
       turret.set(steering_adjust);
-    }    
+    }
   }
 }
