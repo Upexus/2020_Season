@@ -68,46 +68,45 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    //Auto Stuff
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
     time     = new Timer();
     logitech = new Joystick(0);
 
+    //Mechanisms
     shooterAlpha = new WPI_TalonFX(9);
     shooterBeta  = new WPI_TalonFX(10);
     shooter      = new SpeedControllerGroup(shooterAlpha, shooterBeta);
     shooter.setInverted(true);
-    
     turret       = new CANSparkMax(11, MotorType.kBrushless);
     turretSensor = new CANEncoder(turret);
 
+    //Drive
     topLeftDrivey    = new WPI_TalonFX(7);
     topRightDrivey   = new WPI_TalonFX(5);
     bottomLeftDrivey = new WPI_TalonFX(8);
     bottomLeftDrivey = new WPI_TalonFX(6);
-
     leftDrivey  = new SpeedControllerGroup(topLeftDrivey, bottomLeftDrivey);
     rightDrivey = new SpeedControllerGroup(topRightDrivey, bottomRightDrivey);
-
     drivey = new DifferentialDrive(leftDrivey, rightDrivey);
-
 
     //NetworkTable stuffs
     table = NetworkTableInstance.getDefault().getTable("limelight");
-    tx    = table.getEntry("tx");
-    ty    = table.getEntry("ty");
-    ta    = table.getEntry("ta");
+    tx = table.getEntry("tx");
+    ty = table.getEntry("ty");
+    ta = table.getEntry("ta");
   }
   
   @Override
   public void robotPeriodic() {
     //read values periodically
-    double x    = tx.getDouble(0.0);
-    double y    = ty.getDouble(0.0);
+    double x = tx.getDouble(0.0);
+    double y = ty.getDouble(0.0);
     double area = ta.getDouble(0.0);
 
-    //post to smart dashboard periodically
+    //post to smart dashboard periodically for debugging purposes
     SmartDashboard.putNumber("LimelightX", x);
     SmartDashboard.putNumber("LimelightY", y);
     SmartDashboard.putNumber("LimelightArea", area);
@@ -115,48 +114,45 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    //Auto selection
     m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    SmartDashboard.putString("Auto selected", m_autoSelected);
   }
 
   @Override
   public void autonomousPeriodic() {
+
   }
 
   @Override
   public void teleopPeriodic() {
+    //Vars and stuffs akin to vars
     boolean search = false;
 
-    if (logitech.getRawButtonPressed(5)) {
-      search = !search;
-    }
+    //Drive
+    drivey.arcadeDrive(logitech.getRawAxis(1), logitech.getRawAxis(4));
 
-    if (search) {
-      limelightChecker();
-    }
-
-    if (logitech.getRawButton(1)) {
-      drivey.arcadeDrive(0.5, 0);
-    } else {
-      drivey.arcadeDrive(0.0 , 0);
-    }
-
+    //Shooter
     if (logitech.getRawButton(8)) {
       shooter.set(0.5);
     } else {
       shooter.set(0.0);
     }
 
-    if (logitech.getRawButton(12)) {
-      turret.set(-0.5);
-    } else if (logitech.getRawButton(10)) {
-      turret.set(0.5);
+    //Turret
+    if (logitech.getRawButtonPressed(5)) {
+      search = !search;
+    } 
+
+    if (search) {
+      limelightChecker();
     }
   }
 
   @Override
   public void testPeriodic() {
+
   }
 
   public void limelightChecker() {
