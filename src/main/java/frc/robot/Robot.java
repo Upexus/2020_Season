@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
     shooterAlpha = new WPI_TalonFX(9);
     shooterBeta  = new WPI_TalonFX(10);
     shooter      = new SpeedControllerGroup(shooterAlpha, shooterBeta);
-    shooter.setInverted(true);
+    shooter        .setInverted(true);
     turret       = new CANSparkMax(11, MotorType.kBrushless);
     turretSensor = new CANEncoder(turret);
 
@@ -148,6 +148,8 @@ public class Robot extends TimedRobot {
     if (search) {
       limelightChecker();
     }
+
+    //have thing for turret for possible manual control
   }
 
   @Override
