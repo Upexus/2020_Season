@@ -158,28 +158,33 @@ public class Robot extends TimedRobot {
   }
 
   public void limelightChecker() {
-    double tx = table.getEntry("tx").getDouble(0.0);
-    double tv = table.getEntry("tv").getDouble(0.0);
+    double tx = table.getEntry("tx").getDouble(0.0); //x axis offset
+    double tv = table.getEntry("tv").getDouble(0.0); //whether or not we see the goal
     double kp = -0.1;
-    double min_command     = 0.2;
-    double heading_error   = -tx;
-    double steering_adjust = 0.0;
+    double min_command     = 0.05;
+    double heading_error   = -tx;                    //x axis fixer
+    double turret_adjust   = 0.0;                    //used to adjust the turret
     
-    if (tx > 1.0) {
-      steering_adjust = kp*heading_error - min_command;
-      turret.set(steering_adjust);
-    } else if (tx < 1.0) {
-      steering_adjust = kp*heading_error + min_command;
-      turret.set(-steering_adjust);
+    if (tx > 0.0) {
+      turret_adjust = kp*heading_error - min_command;//-0.1 * x axis offset - 
+    } else if (tx < 0.0) {
+      turret_adjust = kp*heading_error + min_command;
     }
 
+    turret.set(turret_adjust);
+
     if (tv == 0.0) {
-      steering_adjust = 0.3;
-      turret.set(steering_adjust);
+      turret_adjust = 0.3;
+      turret.set(turret_adjust);
     } else {
       heading_error = tx;
-      steering_adjust = kp * tx;
-      turret.set(steering_adjust);
+      turret_adjust = kp * heading_error;
+      turret.set(turret_adjust);
     }
   }
+
+  public void seeker() {
+    
+  }
+
 }
