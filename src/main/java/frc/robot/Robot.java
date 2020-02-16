@@ -1,10 +1,3 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2017-2018 FIRST. All Rights Reserved.                        */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
-
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -31,10 +24,8 @@ import com.revrobotics.CANEncoder;
 
 
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  //Vars used by the whole class, put here to only init once.
+  boolean search = false;
   
   //Limelight
   private boolean LimelightHasValidTarget = false;
@@ -69,9 +60,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     //Auto Stuff
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
     time     = new Timer();
     logitech = new Joystick(0);
 
@@ -114,10 +102,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    //Auto selection
-    m_autoSelected = m_chooser.getSelected();
-    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    SmartDashboard.putString("Auto selected", m_autoSelected);
+    
   }
 
   @Override
@@ -127,9 +112,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    //Vars and stuffs akin to vars
-    boolean search = false;
-
     //Drive
     drivey.arcadeDrive(logitech.getRawAxis(1), logitech.getRawAxis(4));
 
@@ -141,7 +123,7 @@ public class Robot extends TimedRobot {
     }
 
     //Turret
-    if (logitech.getRawButtonPressed(5)) {
+    if (logitech.getRawButtonPressed(1)) {
       search = !search;
     } 
 
@@ -184,7 +166,7 @@ public class Robot extends TimedRobot {
   }
 
   public void seeker() {
-    
+
   }
 
 }
