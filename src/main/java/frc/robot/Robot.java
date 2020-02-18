@@ -119,7 +119,12 @@ public class Robot extends TimedRobot {
   
   @Override
   public void robotPeriodic() {
+    SmartDashboard.putBoolean("Top", topCell.get());
+    SmartDashboard.putBoolean("Mid", middleCell.get());
+    SmartDashboard.putBoolean("Bot", bottomCell.get());
 
+    SmartDashboard.putNumber("Velocity", shooterSensor.getIntegratedSensorVelocity());
+  
   }
 
   @Override
