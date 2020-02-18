@@ -23,7 +23,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANEncoder;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -38,13 +40,14 @@ public class Robot extends TimedRobot {
   boolean search = false;
 
   //Motor Controllers
-  private WPI_TalonFX frontLeft, frontRight, rearLeft, rearRight;
-  private WPI_TalonFX leftShooter, rightShooter;
-  private CANSparkMax turret;
+  private WPI_TalonFX frontLeft, frontRight, rearLeft, rearRight, leftShooter, rightShooter;
+  private CANSparkMax turret, preroller, vertConvey, indexer, intake;
   private TalonFXSensorCollection shooterSensor;
   private DifferentialDrive drive;
   private SpeedControllerGroup leftDrivey, rightDrivey, shooters;
-
+  private VictorSPX funnel;
+  //private VictorSPX colorWheel;
+  
   //Misc
   private Timer time;
   private Joystick driver, mechanic;
@@ -56,14 +59,11 @@ public class Robot extends TimedRobot {
   private NetworkTableEntry ta;
 
   //Sensors
-  private CANEncoder turretSensor;
   private DigitalInput bottomCell, middleCell, topCell;
 
-  /* Notes:
-  https://docs.limelightvision.io/en/latest/cs_aiming.html AIMING
-  https://docs.limelightvision.io/en/latest/cs_estimating_distance.html DISTANCE ESTIMATION
-  https://docs.limelightvision.io/en/latest/getting_started.html#wiring BASIC PROGRAMMING AND WIRING
-  */
+  //Solenoids
+  private Solenoid shifters, leftIntake, rightIntake;
+  private Compressor compressor;
 
   @Override
   public void robotInit() {
@@ -73,14 +73,22 @@ public class Robot extends TimedRobot {
     mechanic = new Joystick(1);
 
     //Mechanisms
+    //Shooters
     leftShooter = new WPI_TalonFX(9);
     rightShooter = new WPI_TalonFX(10);
-    // Change which shooter is inverted in the case that both rotate in the wrong direction.
     leftShooter.setInverted(true);
     shooters = new SpeedControllerGroup(leftShooter, rightShooter);
+    
+    //Intake and Conveyors
+    turret = new CANSparkMax(13, MotorType.kBrushless);
+    preroller = new CANSparkMax(11, MotorType.kBrushless);
+    indexer = new CANSparkMax(14, MotorType.kBrushless);
+    vertConvey = new CANSparkMax(12, MotorType.kBrushless);
+    intake = new CANSparkMax(15, MotorType.kBrushless);
+    funnel = new VictorSPX(16);
 
-    turret = new CANSparkMax(11, MotorType.kBrushless);
-    turretSensor = new CANEncoder(turret);
+    //color wheel :|
+    //colorWheel = new VictorSPX(18);
 
     //Drive
     frontLeft    = new WPI_TalonFX(5);
@@ -101,6 +109,12 @@ public class Robot extends TimedRobot {
     bottomCell = new DigitalInput(0);
     middleCell = new DigitalInput(1);
     topCell = new DigitalInput(2);
+
+    //pneumatics
+    shifters = new Solenoid(0);
+    leftIntake = new Solenoid(1);
+    rightIntake = new Solenoid(2);
+    compressor = new Compressor();
   }
   
   @Override
@@ -122,27 +136,85 @@ public class Robot extends TimedRobot {
   }
 
   @Override
+  public void teleopInit() {
+    leftIntake.set(true);
+    rightIntake.set(true);
+  }
+
+  @Override
   public void teleopPeriodic() {
     //Drive
-    drive.arcadeDrive(driver.getRawAxis(1), driver.getRawAxis(4));
+      drive.arcadeDrive(driver.getRawAxis(1), driver.getRawAxis(4));
 
-    //Shooter
-    if (driver.getRawButton(8)) {
-      shooters.set(1);
-    } else {
-      shooters.set(0.0);
-    }
+      //Shooter
+      if (driver.getRawButton(5)) {
+        shooters.set(1);
+      } else {
+        shooters.set(0.0);
+      }
 
-    //Turret
-    if (driver.getRawButtonPressed(1)) {
-      search = !search;
-    } 
+      //Turret
+      if (driver.getRawButtonPressed(1)) {
+        search = !search;
+      } 
 
-    if (search) {
-      limelight();
-    }
+      if (search) {
+        limelight();
+      }
 
-    //have thing for turret for possible manual control
+      SmartDashboard.putBoolean("Auto Search", search);
+
+      //Preroller
+      if (driver.getRawButton(6)) {
+        preroller.set(1);
+      } else {
+        preroller.set(0);
+      }
+      
+      //Intake
+      if (driver.getRawAxis(2) > .6) {
+        intake.set(1);
+      } else {
+        intake.set(0);
+      }
+
+      //Shifters
+      if (driver.getPOV() == 0) {
+        shifters.set(true);
+      } else if (driver.getPOV() == 4) {
+        shifters.set(false);
+      }
+
+    //Mechanics
+      if (mechanic.getPOV() == 0) {
+        vertConvey.set(1);
+      } else if (mechanic.getPOV() == 4) {
+        vertConvey.set(-1);
+      } else {
+        vertConvey.set(0);
+      }
+
+      if (mechanic.getPOV() == 2) {
+        indexer.set(1);
+      } else if (mechanic.getPOV() == 6) {
+        indexer.set(-1);
+      } else {
+        indexer.set(0);
+      }
+
+      if (mechanic.getRawButton(1) == true) {
+        funnel.set(ControlMode.PercentOutput, 100);
+      } else {
+        funnel.set(ControlMode.PercentOutput, 0);
+      }
+      
+      if(mechanic.getRawButton(3) == true) {
+        leftIntake.set(true);
+        rightIntake.set(true);
+      } else if (mechanic.getRawButton(4) == true) {
+        leftIntake.set(false);
+        rightIntake.set(false);
+      }
   }
 
   @Override
