@@ -18,9 +18,9 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANEncoder;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 
 public class Robot extends TimedRobot {
@@ -50,6 +50,9 @@ public class Robot extends TimedRobot {
   private NetworkTableEntry tx;
   private NetworkTableEntry ty;
   private NetworkTableEntry ta;
+
+  //Additional Sensors
+  private DigitalInput photoSwitch;
 
   /* Notes:
   https://docs.limelightvision.io/en/latest/cs_aiming.html AIMING
@@ -85,6 +88,9 @@ public class Robot extends TimedRobot {
     tx = table.getEntry("tx");
     ty = table.getEntry("ty");
     ta = table.getEntry("ta");
+
+    //Sensors
+    photoSwitch = new DigitalInput(0);
   }
   
   @Override
@@ -98,6 +104,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("LimelightX", x);
     SmartDashboard.putNumber("LimelightY", y);
     SmartDashboard.putNumber("LimelightArea", area);
+
   }
 
   @Override
@@ -148,7 +155,7 @@ public class Robot extends TimedRobot {
     double turret_adjust   = 0.0;                    //used to adjust the turret
     
     if (tx > 0.0) {
-      turret_adjust = kp*heading_error - min_command;//-0.1 * x axis offset - 
+      turret_adjust = kp*heading_error - min_command;
     } else if (tx < 0.0) {
       turret_adjust = kp*heading_error + min_command;
     }
