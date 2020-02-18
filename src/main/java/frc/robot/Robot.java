@@ -26,6 +26,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.CANEncoder;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 //Pnuematics 
 import edu.wpi.first.wpilibj.Solenoid;
@@ -56,6 +57,7 @@ public class Robot extends TimedRobot {
 
   //Sensors
   private CANEncoder turretSensor;
+  private DigitalInput bottomCell, middleCell, topCell;
 
   /* Notes:
   https://docs.limelightvision.io/en/latest/cs_aiming.html AIMING
@@ -94,6 +96,11 @@ public class Robot extends TimedRobot {
     tx = table.getEntry("tx");
     ty = table.getEntry("ty");
     ta = table.getEntry("ta");
+
+    //Sensors
+    bottomCell = new DigitalInput(0);
+    middleCell = new DigitalInput(1);
+    topCell = new DigitalInput(2);
   }
   
   @Override
@@ -152,7 +159,7 @@ public class Robot extends TimedRobot {
     double turret_adjust   = 0.0;                    //used to adjust the turret
     
     if (tx > 0.0) {
-      turret_adjust = kp*heading_error - min_command;//-0.1 * x axis offset - 
+      turret_adjust = kp*heading_error - min_command;
     } else if (tx < 0.0) {
       turret_adjust = kp*heading_error + min_command;
     }
