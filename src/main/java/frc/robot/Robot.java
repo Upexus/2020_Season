@@ -69,23 +69,23 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     //Auto Stuff
     time     = new Timer();
-    driver = new Joystick(0);
+    driver   = new Joystick(0);
     mechanic = new Joystick(1);
 
     //Mechanisms
     //Shooters
-    leftShooter = new WPI_TalonFX(9);
+    leftShooter  = new WPI_TalonFX(9);
     rightShooter = new WPI_TalonFX(10);
     leftShooter.setInverted(true);
     shooters = new SpeedControllerGroup(leftShooter, rightShooter);
     
     //Intake and Conveyors
-    turret = new CANSparkMax(13, MotorType.kBrushless);
-    preroller = new CANSparkMax(11, MotorType.kBrushless);
-    indexer = new CANSparkMax(14, MotorType.kBrushless);
-    vertConvey = new CANSparkMax(12, MotorType.kBrushless);
-    intake = new CANSparkMax(15, MotorType.kBrushless);
-    funnel = new VictorSPX(16);
+    turret      = new CANSparkMax(13, MotorType.kBrushless);
+    preroller   = new CANSparkMax(11, MotorType.kBrushless);
+    indexer     = new CANSparkMax(14, MotorType.kBrushless);
+    vertConvey  = new CANSparkMax(12, MotorType.kBrushless);
+    intake      = new CANSparkMax(15, MotorType.kBrushless);
+    funnel      = new VictorSPX(16);
 
     //color wheel :|
     //colorWheel = new VictorSPX(18);
@@ -93,11 +93,11 @@ public class Robot extends TimedRobot {
     //Drive
     frontLeft    = new WPI_TalonFX(5);
     frontRight   = new WPI_TalonFX(6);
-    rearLeft = new WPI_TalonFX(7);
-    rearRight = new WPI_TalonFX(8);
-    leftDrivey  = new SpeedControllerGroup(frontLeft, rearLeft);
-    rightDrivey = new SpeedControllerGroup(frontRight, rearRight);
-    drive = new DifferentialDrive(leftDrivey, rightDrivey);
+    rearLeft     = new WPI_TalonFX(7);
+    rearRight    = new WPI_TalonFX(8);
+    leftDrivey   = new SpeedControllerGroup(frontLeft, rearLeft);
+    rightDrivey  = new SpeedControllerGroup(frontRight, rearRight);
+    drive        = new DifferentialDrive(leftDrivey, rightDrivey);
 
     //NetworkTable stuffs
     table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -108,13 +108,13 @@ public class Robot extends TimedRobot {
     //Sensors
     bottomCell = new DigitalInput(0);
     middleCell = new DigitalInput(1);
-    topCell = new DigitalInput(2);
+    topCell    = new DigitalInput(2);
 
     //pneumatics
-    shifters = new Solenoid(0);
-    leftIntake = new Solenoid(1);
+    shifters    = new Solenoid(0);
+    leftIntake  = new Solenoid(1);
     rightIntake = new Solenoid(2);
-    compressor = new Compressor();
+    compressor  = new Compressor();
   }
   
   @Override
